@@ -39,10 +39,10 @@ If running Jenkins on `localhost:8080`, use ngrok to enable GitHub Webhooks:
 2.  Select "This project is parameterized" and add the following String Parameters:
     *   `DOCKER_HUB_USER`: Your Docker Hub username.
     *   `DOCKER_HUB_REPO`: Your repository name.
-    *   `EC2_PUBLIC_IP`: The IP address of your EC2 instance.
+    *   `EC2_PUBLIC_IP`: `13.60.151.71` (Static Elastic IP)
     *   `APP_VERSION`: The version tag for the image (e.g., `1.0.0`).
-3.  Enable **GitHub hook trigger for GITScm polling** under Build Triggers.
-4.  Select **Pipeline script from SCM** (Git) and set the **Script Path** to `Jenkinsfile`.
+4.  Enable **GitHub hook trigger for GITScm polling** under Build Triggers.
+5.  Select **Pipeline script from SCM** (Git) and set the **Script Path** to `Jenkinsfile`.
 
 ## Pipeline Best Practices Implemented
 
@@ -54,7 +54,18 @@ If running Jenkins on `localhost:8080`, use ngrok to enable GitHub Webhooks:
 
 ## Verification
 
-Access the application via: `http://<EC2_PUBLIC_IP>/`
+Access the application via the static Elastic IP:
+
+`http://13.60.151.71/`
+
+You should see:
+
+```json
+{
+  "message": "Deployment successful via Jenkins Best Practices Pipeline!",
+  "version": "1.0.0"
+}
+```
 
 ## Cleanup
 
