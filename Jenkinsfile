@@ -75,28 +75,23 @@ pipeline {
 
         stage('Deploy to EC2') {
             when {
-                // Ensure deployment only happens if an IP is provided
                 expression { params.EC2_PUBLIC_IP != '' }
             }
             steps {
                 sshagent(credentials: [EC2_SSH_CREDS_ID]) {
-                    echo "Deploying to ${params.EC2_PUBLIC_IP}..."
+                    echo "Deploying to ${params.EC2_PUBLIC_IP} via Ansible..."
                     sh """
-                        ssh -o StrictHostKeyChecking=no ec2-user@${params.EC2_PUBLIC_IP} "
-                            docker pull ${DOCKER_IMAGE}:latest &&
-                            docker stop web-app || true &&
-                            docker rm web-app || true &&
-                            docker run -d --name web-app \
-                                -p 80:3000 \
-                                -e APP_MESSAGE='${APP_MESSAGE}' \
-                                -e APP_VERSION='${params.APP_VERSION}' \
-                                ${DOCKER_IMAGE}:latest &&
-                            docker system prune -f
-                        "
+                        ansible-playbook -i ansible/inventory.ini ansible/deploy.yml \
+                            -e "TARGET_IP=${params.EC2_PUBLIC_IP}" \
+                            -e "IMAGE_NAME=${DOCKER_IMAGE}:latest" \
+                            -e "APP_MESSAGE='${APP_MESSAGE}'" \
+                            -e "APP_VERSION='${params.APP_VERSION}'" \
+                            --ssh-common-args='-o StrictHostKeyChecking=no'
                     """
                 }
             }
         }
+
     }
 
     post {

@@ -5,9 +5,10 @@ This project implements a fully dynamic CI/CD pipeline for a Node.js Express app
 ## Prerequisites
 
 1.  **Jenkins Server**: Installed with Pipeline, Git, Credentials Binding, Docker Pipeline, and SSH Agent plugins.
-2.  **Docker**: Installed on Jenkins and configured for the `jenkins` user.
-3.  **AWS EC2**: Provisioned using the provided Terraform module.
-4.  **Docker Hub**: Account and repository created.
+2.  **Ansible**: Installed on the Jenkins server to handle deployment configuration.
+3.  **Docker**: Installed on Jenkins and configured for the `jenkins` user.
+4.  **AWS EC2**: Provisioned using the provided Terraform module.
+5.  **Docker Hub**: Account and repository created.
 
 ## Setup Instructions
 
@@ -41,16 +42,22 @@ If running Jenkins on `localhost:8080`, use ngrok to enable GitHub Webhooks:
     *   `DOCKER_HUB_REPO`: Your repository name.
     *   `EC2_PUBLIC_IP`: `13.60.151.71` (Static Elastic IP)
     *   `APP_VERSION`: The version tag for the image (e.g., `1.0.0`).
-4.  Enable **GitHub hook trigger for GITScm polling** under Build Triggers.
-5.  Select **Pipeline script from SCM** (Git) and set the **Script Path** to `Jenkinsfile`.
+3.  Enable **GitHub hook trigger for GITScm polling** under Build Triggers.
+4.  Select **Pipeline script from SCM** (Git) and set the **Script Path** to `Jenkinsfile`.
+
+## Deployment with Ansible
+
+The pipeline uses Ansible for idempotent deployments. The files are located in the `ansible/` directory:
+*   `deploy.yml`: The playbook that pulls the image and manages the container.
+*   `inventory.ini`: The inventory template.
 
 ## Pipeline Best Practices Implemented
 
+*   **Configuration as Code**: Using Ansible for reliable, idempotent container management.
 *   **Credential Masking**: Using `credentials()` and `sshagent` ensures secrets are never leaked in logs.
 *   **Zero Hardcoding**: Every variable is configurable via Jenkins parameters.
 *   **Build Hooks**: `options` block includes `buildDiscarder` and `timestamps` for better log management.
 *   **Clean Workspace**: Uses `cleanWs()` in the `post` block to save disk space on Jenkins agents.
-*   **Build Arguments**: Docker image is built with dynamic arguments for versioning.
 
 ## Verification
 
@@ -58,16 +65,7 @@ Access the application via the static Elastic IP:
 
 `http://13.60.151.71/`
 
-You should see:
-
-```json
-{
-  "message": "Deployment successful via Jenkins Best Practices Pipeline!",
-  "version": "1.0.0"
-}
-```
-
 ## Cleanup
 
-*   **Containers**: Handled automatically on EC2 after each deployment.
+*   **Containers**: Handled automatically on EC2 via Ansible after each deployment.
 *   **Infrastructure**: Run `terraform destroy -auto-approve` inside the `terraform/` directory.
