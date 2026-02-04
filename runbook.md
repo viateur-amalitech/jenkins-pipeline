@@ -47,13 +47,16 @@ If running Jenkins on `localhost:8080`, use ngrok to enable GitHub Webhooks:
 
 ## Deployment with Ansible
 
-The pipeline uses Ansible for idempotent deployments. The files are located in the `ansible/` directory:
-*   `deploy.yml`: The playbook that pulls the image and manages the container.
-*   `inventory.ini`: The inventory template.
+The pipeline uses modular Ansible roles for idempotent deployments:
+
+*   `ansible/roles/docker`: Handles Docker installation and system configuration.
+*   `ansible/roles/webapp`: Handles application lifecycle (pulling and running containers).
+*   `ansible/deploy.yml`: The main playbook orchestrated by Jenkins.
 
 ## Pipeline Best Practices Implemented
 
 *   **Configuration as Code**: Using Ansible for reliable, idempotent container management.
+*   **Modular Architecture**: Ansible roles ensure separation of system setup and app deployment.
 *   **Credential Masking**: Using `credentials()` and `sshagent` ensures secrets are never leaked in logs.
 *   **Zero Hardcoding**: Every variable is configurable via Jenkins parameters.
 *   **Build Hooks**: `options` block includes `buildDiscarder` and `timestamps` for better log management.

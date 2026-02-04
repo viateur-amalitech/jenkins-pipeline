@@ -45,11 +45,8 @@ resource "aws_instance" "web_server" {
   user_data = <<-EOF
               #!/bin/bash
               yum update -y
-              amazon-linux-extras install docker -y
-              service docker start
-              usermod -a -G docker ec2-user
-              systemctl enable docker
               EOF
+
 
   tags = {
     Name = "Jenkins-Deployment-Target"

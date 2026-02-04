@@ -16,17 +16,12 @@ pipeline {
     }
 
     environment {
-        // Industry Best Practice: Bind credentials directly in the environment block
-        // This automatically creates DOCKER_CREDS_USR and DOCKER_CREDS_PSW
         DOCKER_CREDS      = credentials('registry_creds')
         
-        // ID for the SSH Agent plugin
-        EC2_SSH_CREDS_ID  = 'ec2_ssh'
+        EC2_SSH_CREDS_ID  = credentials('ec2_ssh')
         
-        // Construct image name dynamically from parameters
         DOCKER_IMAGE      = "${params.DOCKER_HUB_USER}/${params.DOCKER_HUB_REPO}"
         
-        // Application configuration
         APP_MESSAGE       = "Deployment successful via Jenkins Best Practices Pipeline!"
     }
 
@@ -39,14 +34,14 @@ pipeline {
 
         stage('Build & Install') {
             steps {
-                echo "Installing dependencies..."
+                echo "Installing dependencies"
                 sh 'npm install'
             }
         }
 
         stage('Unit Tests') {
             steps {
-                echo "Running unit tests..."
+                echo "Running unit tests"
                 sh 'npm test'
             }
         }
@@ -64,7 +59,6 @@ pipeline {
         stage('Push to Registry') {
             steps {
                 script {
-                    // Using variables provided by the credentials() helper
                     sh "echo ${DOCKER_CREDS_PSW} | docker login -u ${DOCKER_CREDS_USR} --password-stdin"
                     echo "Pushing image to Docker Hub..."
                     sh "docker push ${DOCKER_IMAGE}:${params.APP_VERSION}"
@@ -79,7 +73,7 @@ pipeline {
             }
             steps {
                 sshagent(credentials: [EC2_SSH_CREDS_ID]) {
-                    echo "Deploying to ${params.EC2_PUBLIC_IP} via Ansible..."
+                    echo "Deploying to ${params.EC2_PUBLIC_IP} via Ansible"
                     sh """
                         ansible-playbook -i ansible/inventory.ini ansible/deploy.yml \
                             -e "TARGET_IP=${params.EC2_PUBLIC_IP}" \
@@ -97,7 +91,7 @@ pipeline {
     post {
         always {
             sh "docker logout || true"
-            cleanWs() // Best Practice: Keep Jenkins agents clean
+            cleanWs()
         }
         success {
             echo "Successfully deployed version ${params.APP_VERSION} to http://${params.EC2_PUBLIC_IP}"
