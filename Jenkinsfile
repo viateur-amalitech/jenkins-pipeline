@@ -5,8 +5,8 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr: '10'))
         timestamps()
         timeout(time: 1, unit: 'HOURS')
-        ansiColor('xterm')
     }
+
 
     parameters {
         string(name: 'DOCKER_HUB_USER', defaultValue: 'viateur', description: 'Docker Hub Username')
