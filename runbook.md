@@ -23,7 +23,7 @@ This project implements a fully dynamic CI/CD pipeline for a Node.js Express app
 You must create the following credentials in Jenkins (**Manage Jenkins** -> **Manage Credentials**):
 
 *   **registry_creds**: Kind "Username with password" (Docker Hub credentials).
-*   **ec2_ssh**: Kind "SSH Username with private key" (Username: `ec2-user`, Private Key: your `viateur` key).
+*   **ec2_ssh**: Kind "SSH Username with private key" (Username: `ec2-user`, Private Key: your `updated` key found in Downloads).
 
 ### 3. Local Jenkins with ngrok (Optional)
 
